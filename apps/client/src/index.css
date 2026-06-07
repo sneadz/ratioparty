@@ -187,3 +187,8 @@ h3 { font-size: 1.1rem; }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ─── VOLUME SLIDER ──────────────────────────────────────────────────────── */
+.volume-slider { width: 100%; accent-color: var(--accent); cursor: pointer; }
+.volume-slider::-webkit-slider-thumb { width: 20px; height: 20px; }
+.volume-slider::-moz-range-thumb     { width: 20px; height: 20px; }

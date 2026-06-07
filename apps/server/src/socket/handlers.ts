@@ -104,12 +104,13 @@ export function registerHandlers(io: AppServer, socket: AppSocket): void {
       room.cumulativeScores = { ...newState.cumulativeScores }
     }
 
-    // Fin de partie
+    // Fin de partie — retour au lobby en conservant les joueurs
     if (plugin.isRoundOver(newState)) {
-      room.status = 'results'
+      room.status = 'lobby'
       room.gameSession = null
+      room.cumulativeScores = {}
       io.to(room.id).emit('room_updated', room.toSnapshot())
-      console.log(`[game] partie terminée dans ${room.id}`)
+      console.log(`[game] partie terminée dans ${room.id}, retour au lobby`)
       return
     }
 

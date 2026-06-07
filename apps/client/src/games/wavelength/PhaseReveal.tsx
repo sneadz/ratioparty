@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import type { WavelengthClientState, RoomSnapshot } from '@ratioparty/shared'
 import { socket } from '../../socket.ts'
 import { SpectrumBar } from './PhaseClue.tsx'
+import { playScore, playGoNext } from '../../sounds.ts'
 
 interface Props {
   state: WavelengthClientState
@@ -19,9 +21,14 @@ export default function PhaseReveal({ state, playerId, room }: Props) {
   const isHost = playerId === room.hostId
   const score = state.roundScore ?? 0
   const scoreLabel = SCORE_LABELS[score] ?? SCORE_LABELS[0]
-  const isGameOver = state.round > state.maxRounds
+  const isGameOver = state.round >= state.maxRounds
+
+  useEffect(() => {
+    playScore(score)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function nextRound() {
+    playGoNext()
     socket.emit('game_action', { type: 'next_round' })
   }
 

@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import type { WavelengthClientState, RoomSnapshot } from '@ratioparty/shared'
 import PhaseClue from './PhaseClue.tsx'
 import PhaseGuess from './PhaseGuess.tsx'
 import PhaseReveal from './PhaseReveal.tsx'
+import { setVolume, getVolume } from '../../sounds.ts'
 
 interface Props {
   state: WavelengthClientState
@@ -12,6 +14,7 @@ interface Props {
 export default function WavelengthGame({ state, playerId, room }: Props) {
   const isCaptain = playerId === state.captainId
   const captainName = room.players.find((p) => p.id === state.captainId)?.name ?? '?'
+  const [volume, setVolumeState] = useState(getVolume)
 
   return (
     <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden' }}>
@@ -52,13 +55,33 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
               })}
           </div>
 
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.75rem', marginTop: 'auto' }}>
-            <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
-              Manche
-            </p>
-            <p style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.75rem', color: 'var(--text)', lineHeight: 1 }}>
-              {state.round}<span style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>/{state.maxRounds}</span>
-            </p>
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.75rem', marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div>
+              <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                Manche
+              </p>
+              <p style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.75rem', color: 'var(--text)', lineHeight: 1 }}>
+                {state.round}<span style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>/{state.maxRounds}</span>
+              </p>
+            </div>
+            <div>
+              <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.35rem' }}>
+                Volume
+              </p>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={volume}
+                onChange={(e) => {
+                  const v = Number(e.target.value)
+                  setVolumeState(v)
+                  setVolume(v)
+                }}
+                className="volume-slider"
+              />
+            </div>
           </div>
 
         </div>

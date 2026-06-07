@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import type { WavelengthClientState } from '@ratioparty/shared'
 import { socket } from '../../socket.ts'
 import { SpectrumBar } from './PhaseClue.tsx'
+import { playTick, playLockGuess } from '../../sounds.ts'
 
 interface Props {
   state: WavelengthClientState
@@ -19,10 +20,12 @@ export default function PhaseGuess({ state, isCaptain }: Props) {
     if (now - lastEmit.current > THROTTLE_MS) {
       lastEmit.current = now
       socket.emit('game_action', { type: 'move_cursor', position: pos })
+      playTick()
     }
   }
 
   function lockGuess() {
+    playLockGuess()
     socket.emit('game_action', { type: 'lock_guess' })
   }
 
