@@ -1,9 +1,14 @@
 import { randomUUID } from 'crypto'
 import type { Player, RoomSnapshot } from '@ratioparty/shared'
 
-// Représentation interne d'un joueur (inclut le token de reconnexion, jamais envoyé au client)
 interface InternalPlayer extends Player {
   reconnectToken: string
+}
+
+interface GameSession {
+  pluginId: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  state: any
 }
 
 export class Room {
@@ -12,6 +17,8 @@ export class Room {
   hostId: string
   status: RoomSnapshot['status'] = 'lobby'
   players: Map<string, InternalPlayer> = new Map()
+  gameSession: GameSession | null = null
+  cumulativeScores: Record<string, number> = {}
 
   constructor(id: string, host: { socketId: string; name: string }) {
     this.id = id
@@ -44,16 +51,13 @@ export class Room {
     if (p) p.isConnected = false
   }
 
-  /** Retrouve un joueur via son token et lui attribue le nouveau socket ID */
   reconnect(reconnectToken: string, newSocketId: string): InternalPlayer | null {
     for (const [oldId, player] of this.players) {
       if (player.reconnectToken !== reconnectToken) continue
-
       this.players.delete(oldId)
       player.id = newSocketId
       player.isConnected = true
       this.players.set(newSocketId, player)
-
       if (this.hostId === oldId) this.hostId = newSocketId
       return player
     }
@@ -64,16 +68,20 @@ export class Room {
     return this.players.get(socketId)?.reconnectToken
   }
 
+  getConnectedPlayers(): InternalPlayer[] {
+    return [...this.players.values()].filter((p) => p.isConnected)
+  }
+
   toSnapshot(): RoomSnapshot {
     return {
       id: this.id,
       hostId: this.hostId,
       status: this.status,
-      players: Array.from(this.players.values()).map(({ reconnectToken: _t, ...pub }) => pub),
+      cumulativeScores: this.cumulativeScores,
+      players: [...this.players.values()].map(({ reconnectToken: _t, ...pub }) => pub),
     }
   }
 
-  /** True si tous les joueurs sont déconnectés */
   get isEmpty(): boolean {
     return [...this.players.values()].every((p) => !p.isConnected)
   }

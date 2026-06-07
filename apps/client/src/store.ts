@@ -1,31 +1,28 @@
 import { create } from 'zustand'
-import type { RoomSnapshot } from '@ratioparty/shared'
+import type { RoomSnapshot, WavelengthClientState } from '@ratioparty/shared'
 
 interface AppState {
-  // Identité du joueur local
   playerId: string | null
   playerName: string
   reconnectToken: string | null
-
-  // État de la room
   room: RoomSnapshot | null
+  gameState: WavelengthClientState | null
 
-  // Actions
-  setPlayer: (id: string, name: string, token: string) => void
-  setRoom: (room: RoomSnapshot) => void
-  reset: () => void
+  setPlayer:    (id: string, name: string, token: string) => void
+  setRoom:      (room: RoomSnapshot) => void
+  setGameState: (state: WavelengthClientState) => void
+  reset:        () => void
 }
 
 export const useStore = create<AppState>((set) => ({
-  playerId: null,
-  playerName: '',
+  playerId:      null,
+  playerName:    '',
   reconnectToken: null,
-  room: null,
+  room:          null,
+  gameState:     null,
 
-  setPlayer: (playerId, playerName, reconnectToken) =>
-    set({ playerId, playerName, reconnectToken }),
-
-  setRoom: (room) => set({ room }),
-
-  reset: () => set({ playerId: null, playerName: '', reconnectToken: null, room: null }),
+  setPlayer:    (playerId, playerName, reconnectToken) => set({ playerId, playerName, reconnectToken }),
+  setRoom:      (room) => set({ room }),
+  setGameState: (gameState) => set({ gameState }),
+  reset:        () => set({ playerId: null, playerName: '', reconnectToken: null, room: null, gameState: null }),
 }))
