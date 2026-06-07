@@ -32,7 +32,7 @@ export default function PhaseGuess({ state, isCaptain }: Props) {
       {/* Indice */}
       <div className="card-brutal" style={{ textAlign: 'center' }}>
         <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-          Indice du capitaine
+          L'indice un peu nul du capichef
         </p>
         <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
           {state.clue}
@@ -51,7 +51,7 @@ export default function PhaseGuess({ state, isCaptain }: Props) {
 
       {/* Slider natif pour précision */}
       {!isCaptain && (
-        <div className="stack-sm">
+        <div className="stack-sm" style={{ width: 560, margin: '0 auto' }}>
           <input
             type="range"
             min={0}
@@ -66,7 +66,7 @@ export default function PhaseGuess({ state, isCaptain }: Props) {
             }}
           />
           <button className="btn btn-primary" onClick={lockGuess}>
-            Valider la réponse
+            C'est mon dernier mot
           </button>
         </div>
       )}

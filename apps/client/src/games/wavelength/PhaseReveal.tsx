@@ -9,10 +9,10 @@ interface Props {
 }
 
 const SCORE_LABELS: Record<number, { label: string; color: string }> = {
-  4: { label: 'Bullseye !',  color: 'var(--accent)' },
-  3: { label: 'Proche !',   color: '#c25010' },
-  2: { label: 'Pas loin…',  color: '#7a2a0e' },
-  0: { label: 'Raté.',      color: 'var(--text-muted)' },
+  4: { label: 'Goatesque',          color: 'var(--accent)' },
+  3: { label: 'Nice',               color: '#c25010' },
+  2: { label: 'Ok tier',            color: '#7a2a0e' },
+  0: { label: 'Ahahah le mauvais ! 😂', color: 'var(--text-muted)' },
 }
 
 export default function PhaseReveal({ state, playerId, room }: Props) {
@@ -48,7 +48,7 @@ export default function PhaseReveal({ state, playerId, room }: Props) {
       {/* Spectre avec zones */}
       <SpectrumBar
         state={state}
-        showTarget={true}
+        showTarget={false}
         showZones={true}
         showCursor={true}
       />
@@ -57,13 +57,13 @@ export default function PhaseReveal({ state, playerId, room }: Props) {
       {isHost && (
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <button className="btn btn-primary" style={{ width: 'auto', padding: '0.75rem 2rem' }} onClick={nextRound}>
-            {isGameOver ? 'Retour au lobby' : 'Manche suivante →'}
+            {isGameOver ? 'Retour lobby' : 'Go next'}
           </button>
         </div>
       )}
       {!isHost && (
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-display)', fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-          En attente de l'hôte…
+          Le capichef ronfle, on l'attend...
         </p>
       )}
 

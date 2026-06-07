@@ -74,14 +74,14 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
 
           {isCaptain ? (
             <div>
-              <h1 style={{ color: 'var(--accent)' }}>À toi<br />de jouer.</h1>
-              <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>Tu es le capitaine cette manche.</p>
+              <h1 style={{ color: 'var(--accent)' }}>À toi de<br />jouer ma foi.</h1>
+              <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>C'est toi le capichef.</p>
             </div>
           ) : (
             <div>
-              <h1>Devinez<br /><span style={{ color: 'var(--accent)' }}>{captainName}</span>.</h1>
+              <h1>Devine,<br />c'est facile...</h1>
               <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                {state.phase === 'giving_clue' ? `${captainName} prépare son indice…` : 'Placez le curseur sur le spectre.'}
+                {state.phase === 'giving_clue' ? `${captainName} choisi (il est si long...)` : 'Soit précis bon sang !'}
               </p>
             </div>
           )}
