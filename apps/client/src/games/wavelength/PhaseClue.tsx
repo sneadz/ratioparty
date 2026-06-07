@@ -129,7 +129,7 @@ export function SpectrumBar({ state, showTarget, showZones, showCursor, onCursor
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
 
       {/* Barre centrée — les labels débordent en dehors */}
-      <div style={{ position: 'relative', margin: '0 auto', width: '100%' }}>
+      <div style={{ position: 'relative', margin: '0 auto', width: 560 }}>
 
         {/* Label gauche : ancré à droite du bord gauche de la barre */}
         <div style={{ ...labelStyle, right: 'calc(100% + 12px)' }}>{spectrum.left}</div>

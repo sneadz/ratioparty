@@ -14,10 +14,10 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
   const captainName = room.players.find((p) => p.id === state.captainId)?.name ?? '?'
 
   return (
-    <div style={{ height: '100dvh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden' }}>
 
-      {/* ── Bloc scores (fixe, pleine hauteur) ──────────────────────────── */}
-      <div style={{ position: 'fixed', top: 0, left: 0, width: 180, height: '100dvh', zIndex: 10, padding: '2rem 1.25rem' }}>
+      {/* ── Bloc scores (sidebar, pleine hauteur) ───────────────────────── */}
+      <div style={{ flexShrink: 0, width: 180, padding: '2rem 1.25rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-raised)', border: '2px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', boxShadow: '4px 0 0 var(--border-strong), 0 4px 0 var(--border-strong)' }}>
 
           <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
@@ -65,32 +65,32 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
       </div>
 
       {/* ── Contenu principal (pleine hauteur, centré) ──────────────────── */}
-      <div style={{ height: '100dvh', display: 'flex', alignItems: 'stretch', padding: '2rem', paddingLeft: '2rem' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1, maxWidth: 700, margin: '0 auto', padding: '2rem 3rem', background: 'var(--bg-raised)', border: '2px solid var(--border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', overflowY: 'auto' }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'stretch', padding: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: 1, margin: '0 auto', padding: '2rem 3rem', background: 'var(--bg-raised)', border: '2px solid var(--border)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-lg)', overflowY: 'auto' }}>
 
-        <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.9rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
-          Wavelength
-        </p>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.9rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+            Wavelength
+          </p>
 
-        {isCaptain ? (
-          <div>
-            <h1 style={{ color: 'var(--accent)' }}>À toi<br />de jouer.</h1>
-            <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>Tu es le capitaine cette manche.</p>
-          </div>
-        ) : (
-          <div>
-            <h1>Devinez<br /><span style={{ color: 'var(--accent)' }}>{captainName}</span>.</h1>
-            <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-              {state.phase === 'giving_clue' ? `${captainName} prépare son indice…` : 'Placez le curseur sur le spectre.'}
-            </p>
-          </div>
-        )}
+          {isCaptain ? (
+            <div>
+              <h1 style={{ color: 'var(--accent)' }}>À toi<br />de jouer.</h1>
+              <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>Tu es le capitaine cette manche.</p>
+            </div>
+          ) : (
+            <div>
+              <h1>Devinez<br /><span style={{ color: 'var(--accent)' }}>{captainName}</span>.</h1>
+              <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                {state.phase === 'giving_clue' ? `${captainName} prépare son indice…` : 'Placez le curseur sur le spectre.'}
+              </p>
+            </div>
+          )}
 
-        {state.phase === 'giving_clue' && <PhaseClue state={state} isCaptain={isCaptain} />}
-        {state.phase === 'guessing'     && <PhaseGuess state={state} isCaptain={isCaptain} />}
-        {state.phase === 'reveal'       && <PhaseReveal state={state} playerId={playerId} room={room} />}
+          {state.phase === 'giving_clue' && <PhaseClue state={state} isCaptain={isCaptain} />}
+          {state.phase === 'guessing'     && <PhaseGuess state={state} isCaptain={isCaptain} />}
+          {state.phase === 'reveal'       && <PhaseReveal state={state} playerId={playerId} room={room} />}
 
-      </div>
+        </div>
       </div>
     </div>
   )
