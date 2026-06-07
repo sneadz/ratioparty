@@ -29,76 +29,95 @@ export default function Home() {
     socket.emit('join_room', { code: trimmedCode, playerName: trimmedName })
   }
 
+  function back() { setMode('idle'); setError(''); setName(''); setCode('') }
+
   return (
-    <div className="stack">
-      <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
-        <h1>RatioParty</h1>
-        <p style={{ color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-          Mini-jeux en soirée, entre amis
-        </p>
+    <div style={{
+      minHeight: '100dvh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2rem',
+    }}>
+      <div style={{ width: '100%', maxWidth: 400 }} className="stack-lg">
+
+        {/* Logo */}
+        <div>
+          <h1 style={{ color: 'var(--accent)' }}>Ratio<br />Party</h1>
+          <p style={{ color: 'var(--text-muted)', marginTop: '0.75rem', fontFamily: 'var(--font-body)' }}>
+            Mini-jeux en soirée, entre amis.
+          </p>
+        </div>
+
+        {/* Idle */}
+        {mode === 'idle' && (
+          <div className="stack">
+            <button className="btn btn-primary" onClick={() => setMode('create')}>
+              Créer une partie
+            </button>
+            <button className="btn btn-secondary" onClick={() => setMode('join')}>
+              Rejoindre avec un code
+            </button>
+          </div>
+        )}
+
+        {/* Créer */}
+        {mode === 'create' && (
+          <div className="card-brutal stack">
+            <h2>Nouvelle partie</h2>
+            <input
+              className="input"
+              type="text"
+              placeholder="Ton pseudo"
+              maxLength={20}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+              autoFocus
+            />
+            {error && <p className="error-text">{error}</p>}
+            <button className="btn btn-primary" onClick={handleCreate}>
+              Créer
+            </button>
+            <button className="btn btn-ghost" onClick={back}>
+              Retour
+            </button>
+          </div>
+        )}
+
+        {/* Rejoindre */}
+        {mode === 'join' && (
+          <div className="card-brutal stack">
+            <h2>Rejoindre</h2>
+            <input
+              className="input"
+              type="text"
+              placeholder="Code de la room (ex : XK92F)"
+              maxLength={5}
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              autoFocus
+            />
+            <input
+              className="input"
+              type="text"
+              placeholder="Ton pseudo"
+              maxLength={20}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
+            />
+            {error && <p className="error-text">{error}</p>}
+            <button className="btn btn-primary" onClick={handleJoin}>
+              Rejoindre
+            </button>
+            <button className="btn btn-ghost" onClick={back}>
+              Retour
+            </button>
+          </div>
+        )}
+
       </div>
-
-      {mode === 'idle' && (
-        <div className="stack">
-          <button className="btn-primary" onClick={() => setMode('create')}>
-            Créer une partie
-          </button>
-          <button className="btn-secondary" onClick={() => setMode('join')}>
-            Rejoindre avec un code
-          </button>
-        </div>
-      )}
-
-      {mode === 'create' && (
-        <div className="card stack">
-          <h2>Nouvelle partie</h2>
-          <input
-            type="text"
-            placeholder="Ton pseudo"
-            maxLength={20}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-            autoFocus
-          />
-          {error && <p className="error">{error}</p>}
-          <button className="btn-primary" onClick={handleCreate}>
-            Créer
-          </button>
-          <button className="btn-secondary" onClick={() => { setMode('idle'); setError('') }}>
-            Retour
-          </button>
-        </div>
-      )}
-
-      {mode === 'join' && (
-        <div className="card stack">
-          <h2>Rejoindre</h2>
-          <input
-            type="text"
-            placeholder="Code de la room (ex: XK92F)"
-            maxLength={5}
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            autoFocus
-          />
-          <input
-            type="text"
-            placeholder="Ton pseudo"
-            maxLength={20}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
-          />
-          {error && <p className="error">{error}</p>}
-          <button className="btn-primary" onClick={handleJoin}>
-            Rejoindre
-          </button>
-          <button className="btn-secondary" onClick={() => { setMode('idle'); setError('') }}>
-            Retour
-          </button>
-        </div>
-      )}
     </div>
   )
 }
