@@ -1,4 +1,5 @@
 import { Room } from './Room.js'
+import type { AvatarConfig } from '@ratioparty/shared'
 
 function generateCode(): string {
   // Code court alphanumérique lisible (sans O/0/I/1 confusables)
@@ -9,7 +10,7 @@ function generateCode(): string {
 class RoomManager {
   private rooms: Map<string, Room> = new Map()
 
-  create(host: { socketId: string; name: string }): Room {
+  create(host: { socketId: string; name: string; avatarConfig?: AvatarConfig }): Room {
     let code: string
     do { code = generateCode() } while (this.rooms.has(code))
 

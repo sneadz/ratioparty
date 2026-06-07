@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto'
-import type { Player, RoomSnapshot } from '@ratioparty/shared'
+import type { Player, RoomSnapshot, AvatarConfig } from '@ratioparty/shared'
 
 interface InternalPlayer extends Player {
   reconnectToken: string
@@ -20,7 +20,7 @@ export class Room {
   gameSession: GameSession | null = null
   cumulativeScores: Record<string, number> = {}
 
-  constructor(id: string, host: { socketId: string; name: string }) {
+  constructor(id: string, host: { socketId: string; name: string; avatarConfig?: AvatarConfig }) {
     this.id = id
     this.createdAt = Date.now()
     this.hostId = host.socketId
@@ -30,17 +30,19 @@ export class Room {
       name: host.name,
       isConnected: true,
       isHost: true,
+      avatarConfig: host.avatarConfig,
       reconnectToken: randomUUID(),
     })
   }
 
-  addPlayer(socketId: string, name: string): string {
+  addPlayer(socketId: string, name: string, avatarConfig?: AvatarConfig): string {
     const reconnectToken = randomUUID()
     this.players.set(socketId, {
       id: socketId,
       name,
       isConnected: true,
       isHost: false,
+      avatarConfig,
       reconnectToken,
     })
     return reconnectToken

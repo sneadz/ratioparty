@@ -3,8 +3,8 @@ import type { RoomSnapshot, WavelengthClientState, WavelengthAction } from './ty
 // ─── Client → Serveur ────────────────────────────────────────────────────────
 
 export interface ClientToServerEvents {
-  create_room:    (playerName: string) => void
-  join_room:      (data: { code: string; playerName: string }) => void
+  create_room:    (data: { playerName: string; avatarConfig?: import('./types.js').AvatarConfig }) => void
+  join_room:      (data: { code: string; playerName: string; avatarConfig?: import('./types.js').AvatarConfig }) => void
   reconnect_room: (data: { code: string; reconnectToken: string }) => void
   game_start:     () => void
   game_action:    (action: WavelengthAction) => void

@@ -3,6 +3,8 @@ import { useParams, Navigate, useNavigate } from 'react-router-dom'
 import { useStore } from '../store.ts'
 import { socket } from '../socket.ts'
 import type { Player } from '@ratioparty/shared'
+import AvatarPreview from '../components/avatar/AvatarPreview.tsx'
+import { DEFAULT_AVATAR } from '../components/avatar/avatar.config.ts'
 
 export default function Lobby() {
   const { code } = useParams<{ code: string }>()
@@ -95,13 +97,13 @@ export default function Lobby() {
 
 function PlayerRow({ player, isMe }: { player: Player; isMe: boolean }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0', borderBottom: '1px solid var(--border)', opacity: player.isConnected ? 1 : 0.4 }}>
-      <span style={{ width: 7, height: 7, borderRadius: '50%', background: player.isConnected ? 'var(--success)' : 'var(--text-muted)', flexShrink: 0, boxShadow: player.isConnected ? '0 0 6px var(--success)' : 'none' }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', borderBottom: '1px solid var(--border)', opacity: player.isConnected ? 1 : 0.4 }}>
+      <AvatarPreview config={player.avatarConfig ?? DEFAULT_AVATAR} size={36} style={{ border: '1.5px solid var(--border-strong)' }} />
       <span style={{ flex: 1, fontFamily: 'var(--font-body)' }}>{player.name}</span>
       <div className="row" style={{ gap: '0.4rem' }}>
         {player.isHost && <span className="badge badge-accent">hôte</span>}
         {isMe          && <span className="badge badge-muted">toi</span>}
-        {!player.isConnected && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>déco</span>}
+        <span style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: player.isConnected ? 'var(--success)' : 'var(--text-muted)', boxShadow: player.isConnected ? '0 0 6px var(--success)' : 'none' }} />
       </div>
     </div>
   )

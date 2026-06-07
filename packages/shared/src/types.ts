@@ -1,3 +1,14 @@
+// ─── Avatar ───────────────────────────────────────────────────────────────────
+
+export interface AvatarConfig {
+  background: string
+  skin: string
+  hair: string
+  eyes: string
+  mouth: string
+  clothes: string
+}
+
 // ─── Lobby ───────────────────────────────────────────────────────────────────
 
 export interface Player {
@@ -5,6 +16,7 @@ export interface Player {
   name: string
   isConnected: boolean
   isHost: boolean
+  avatarConfig?: AvatarConfig
 }
 
 export interface RoomSnapshot {

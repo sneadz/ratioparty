@@ -4,6 +4,8 @@ import PhaseClue from './PhaseClue.tsx'
 import PhaseGuess from './PhaseGuess.tsx'
 import PhaseReveal from './PhaseReveal.tsx'
 import { setVolume, getVolume } from '../../sounds.ts'
+import AvatarPreview from '../../components/avatar/AvatarPreview.tsx'
+import { DEFAULT_AVATAR } from '../../components/avatar/avatar.config.ts'
 
 interface Props {
   state: WavelengthClientState
@@ -36,13 +38,14 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
                 const isMe = player.id === playerId
                 const isCap = player.id === state.captainId
                 return (
-                  <div key={player.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: player.isConnected ? 1 : 0.4 }}>
-                    <div style={{ minWidth: 0 }}>
-                      <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', color: isMe ? 'var(--accent)' : 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>
+                  <div key={player.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', opacity: player.isConnected ? 1 : 0.4 }}>
+                    <AvatarPreview config={player.avatarConfig ?? DEFAULT_AVATAR} size={28} style={{ border: '1.5px solid var(--border)', flexShrink: 0 }} />
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.85rem', color: isMe ? 'var(--accent)' : 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 100 }}>
                         {player.name}
                       </p>
                       {isCap && (
-                        <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.65rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent)', marginTop: 1 }}>
+                        <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.6rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent)', marginTop: 1 }}>
                           cap.
                         </p>
                       )}

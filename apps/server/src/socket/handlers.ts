@@ -22,9 +22,9 @@ function broadcastGameState(io: AppServer, roomId: string, pluginId: string, gam
 export function registerHandlers(io: AppServer, socket: AppSocket): void {
 
   // ── Créer une room ──────────────────────────────────────────────────────────
-  socket.on('create_room', (playerName) => {
+  socket.on('create_room', ({ playerName, avatarConfig }) => {
     if (!playerName?.trim()) { socket.emit('error', { message: 'Pseudo invalide.' }); return }
-    const room = roomManager.create({ socketId: socket.id, name: playerName.trim() })
+    const room = roomManager.create({ socketId: socket.id, name: playerName.trim(), avatarConfig })
     const token = room.getReconnectToken(socket.id)!
     socket.join(room.id)
     socket.emit('room_joined', { room: room.toSnapshot(), playerId: socket.id, reconnectToken: token })
@@ -32,12 +32,12 @@ export function registerHandlers(io: AppServer, socket: AppSocket): void {
   })
 
   // ── Rejoindre une room ──────────────────────────────────────────────────────
-  socket.on('join_room', ({ code, playerName }) => {
+  socket.on('join_room', ({ code, playerName, avatarConfig }) => {
     if (!playerName?.trim()) { socket.emit('error', { message: 'Pseudo invalide.' }); return }
     const room = roomManager.get(code)
     if (!room) { socket.emit('error', { message: `Room "${code}" introuvable.` }); return }
     if (room.status !== 'lobby') { socket.emit('error', { message: 'La partie a déjà commencé.' }); return }
-    const token = room.addPlayer(socket.id, playerName.trim())
+    const token = room.addPlayer(socket.id, playerName.trim(), avatarConfig)
     socket.join(room.id)
     socket.emit('room_joined', { room: room.toSnapshot(), playerId: socket.id, reconnectToken: token })
     socket.to(room.id).emit('room_updated', room.toSnapshot())

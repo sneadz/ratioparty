@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { socket } from '../socket.ts'
 import { useStore } from '../store.ts'
+import AvatarEditor from '../components/avatar/AvatarEditor.tsx'
 
 type Mode = 'idle' | 'create' | 'join'
 
@@ -9,14 +10,14 @@ export default function Home() {
   const [name, setName] = useState('')
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
-  const { setPlayer } = useStore()
+  const { setPlayer, avatarConfig, setAvatarConfig } = useStore()
 
   function handleCreate() {
     const trimmed = name.trim()
     if (!trimmed) { setError('Entre un pseudo.'); return }
     setError('')
     setPlayer('', trimmed, '')
-    socket.emit('create_room', trimmed)
+    socket.emit('create_room', { playerName: trimmed, avatarConfig })
   }
 
   function handleJoin() {
@@ -26,7 +27,7 @@ export default function Home() {
     if (trimmedCode.length < 4) { setError('Code invalide.'); return }
     setError('')
     setPlayer('', trimmedName, '')
-    socket.emit('join_room', { code: trimmedCode, playerName: trimmedName })
+    socket.emit('join_room', { code: trimmedCode, playerName: trimmedName, avatarConfig })
   }
 
   function back() { setMode('idle'); setError(''); setName(''); setCode('') }
@@ -75,6 +76,7 @@ export default function Home() {
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
               autoFocus
             />
+            <AvatarEditor config={avatarConfig} onChange={setAvatarConfig} />
             {error && <p className="error-text">{error}</p>}
             <button className="btn btn-primary" onClick={handleCreate}>
               Créer
@@ -107,6 +109,7 @@ export default function Home() {
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
             />
+            <AvatarEditor config={avatarConfig} onChange={setAvatarConfig} />
             {error && <p className="error-text">{error}</p>}
             <button className="btn btn-primary" onClick={handleJoin}>
               Rejoindre
