@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { useParams, Navigate } from 'react-router-dom'
+import { useParams, Navigate, useNavigate } from 'react-router-dom'
 import { useStore } from '../store.ts'
 import { socket } from '../socket.ts'
 import type { Player } from '@ratioparty/shared'
 
 export default function Lobby() {
   const { code } = useParams<{ code: string }>()
-  const { room, playerId } = useStore()
+  const { room, playerId, reset } = useStore()
+  const navigate = useNavigate()
   const [copied, setCopied] = useState(false)
 
   if (!room || room.id !== code) return <Navigate to="/" replace />
@@ -26,9 +27,20 @@ export default function Lobby() {
     socket.emit('game_start')
   }
 
+  function leaveRoom() {
+    localStorage.removeItem('rp_code')
+    localStorage.removeItem('rp_token')
+    reset()
+    navigate('/')
+  }
+
   return (
     <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div style={{ width: '100%', maxWidth: 400 }} className="stack-lg">
+
+        <button className="btn btn-ghost" style={{ width: 'auto', alignSelf: 'flex-start' }} onClick={leaveRoom}>
+          ← Accueil
+        </button>
 
         <div>
           <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>

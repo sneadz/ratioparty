@@ -30,7 +30,7 @@ export default function PhaseGuess({ state, isCaptain }: Props) {
     <div className="stack-lg">
 
       {/* Indice */}
-      <div className="card-brutal" style={{ textAlign: 'center' }}>
+      <div className="card-brutal" style={{ textAlign: 'center', width: 560, margin: '0 auto' }}>
         <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
           L'indice un peu nul du capichef
         </p>
@@ -73,7 +73,7 @@ export default function PhaseGuess({ state, isCaptain }: Props) {
 
       {isCaptain && (
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-display)', fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-          Ton équipe place le curseur…
+          Les gros nooblards sont en train de voter...
         </p>
       )}
 

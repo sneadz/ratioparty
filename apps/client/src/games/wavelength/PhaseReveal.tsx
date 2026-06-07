@@ -9,9 +9,9 @@ interface Props {
 }
 
 const SCORE_LABELS: Record<number, { label: string; color: string }> = {
-  4: { label: 'Goatesque',          color: 'var(--accent)' },
-  3: { label: 'Nice',               color: '#c25010' },
-  2: { label: 'Ok tier',            color: '#7a2a0e' },
+  4: { label: 'Goatesque 🐐',           color: 'var(--accent)' },
+  3: { label: 'Nice 👌',                color: '#c25010' },
+  2: { label: 'Ok tier 😐',             color: '#7a2a0e' },
   0: { label: 'Ahahah le mauvais ! 😂', color: 'var(--text-muted)' },
 }
 

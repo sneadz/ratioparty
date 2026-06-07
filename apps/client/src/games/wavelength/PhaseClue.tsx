@@ -29,7 +29,7 @@ export default function PhaseClue({ state, isCaptain }: Props) {
       />
 
       {isCaptain ? (
-        <div className="card-brutal stack">
+        <div className="card-brutal stack" style={{ width: 560, margin: '0 auto' }}>
           <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
             Ton indice (un mot ou une courte phrase)
           </p>

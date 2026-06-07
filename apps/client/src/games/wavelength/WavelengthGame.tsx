@@ -17,7 +17,7 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
     <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden' }}>
 
       {/* ── Bloc scores (sidebar, pleine hauteur) ───────────────────────── */}
-      <div style={{ flexShrink: 0, width: 180, padding: '2rem 1.25rem' }}>
+      <div style={{ flexShrink: 0, width: 220, padding: '2rem 1.25rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-raised)', border: '2px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', boxShadow: '4px 0 0 var(--border-strong), 0 4px 0 var(--border-strong)' }}>
 
           <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
@@ -35,7 +35,7 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
                 return (
                   <div key={player.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: player.isConnected ? 1 : 0.4 }}>
                     <div style={{ minWidth: 0 }}>
-                      <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', color: isMe ? 'var(--accent)' : 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 85 }}>
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.95rem', color: isMe ? 'var(--accent)' : 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 120 }}>
                         {player.name}
                       </p>
                       {isCap && (
@@ -74,7 +74,10 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
 
           {isCaptain ? (
             <div>
-              <h1 style={{ color: 'var(--accent)' }}>À toi de<br />jouer ma foi.</h1>
+              <h1 style={{ color: 'var(--accent)' }}>
+                {state.phase === 'guessing' ? 'Sous indice prime,' : 'À toi de'}<br />
+                {state.phase === 'guessing' ? 'maintenant on attend.' : 'jouer ma foi.'}
+              </h1>
               <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>C'est toi le capichef.</p>
             </div>
           ) : (
