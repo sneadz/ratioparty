@@ -1,14 +1,13 @@
 {
   "name": "ratioparty",
-  "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
+  "private": true,
   "scripts": {
-    "build": "tsc"
+    "dev": "concurrently -n server,client -c cyan,magenta \"pnpm --filter server dev\" \"pnpm --filter client dev\"",
+    "build": "pnpm --filter shared build && pnpm --filter server build && pnpm --filter client build",
+    "clean": "pnpm -r exec rm -rf dist node_modules"
   },
-  "dependencies": {},
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "typescript": "^5.5.3"
-  },
-  "private": true
+  }
 }
