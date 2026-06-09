@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { WavelengthClientState, RoomSnapshot } from '@ratioparty/shared'
+import { TIMER_DURATIONS } from '@ratioparty/shared'
 import PhaseClue from './PhaseClue.tsx'
 import PhaseGuess from './PhaseGuess.tsx'
 import PhaseReveal from './PhaseReveal.tsx'
@@ -115,12 +116,44 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
             </div>
           )}
 
+          <TimerBar state={state} />
+
           {state.phase === 'giving_clue' && <PhaseClue state={state} isCaptain={isCaptain} />}
           {state.phase === 'guessing'     && <PhaseGuess state={state} isCaptain={isCaptain} />}
           {state.phase === 'reveal'       && <PhaseReveal state={state} playerId={playerId} room={room} />}
 
         </div>
       </div>
+    </div>
+  )
+}
+
+function TimerBar({ state }: { state: WavelengthClientState }) {
+  const [, setTick] = useState(0)
+
+  useEffect(() => {
+    if (state.timer === 'off' || state.phase === 'reveal') return
+    const id = setInterval(() => setTick((t) => t + 1), 500)
+    return () => clearInterval(id)
+  }, [state.timer, state.phase, state.phaseStartedAt])
+
+  if (state.timer === 'off' || state.phase === 'reveal') return null
+
+  const durations = TIMER_DURATIONS[state.timer]
+  const duration = state.phase === 'giving_clue' ? durations.clue : durations.guess
+  const elapsed = (Date.now() - state.phaseStartedAt) / 1000
+  const remaining = Math.max(0, duration - elapsed)
+  const pct = (remaining / duration) * 100
+  const color = pct > 50 ? 'var(--success, #4caf50)' : pct > 20 ? '#c25010' : '#e74c3c'
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div style={{ flex: 1, height: 6, background: 'var(--border)', borderRadius: 3, overflow: 'hidden' }}>
+        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 3, transition: 'width 0.5s linear, background 0.3s' }} />
+      </div>
+      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.9rem', color, minWidth: 36, textAlign: 'right' }}>
+        {Math.ceil(remaining)}s
+      </span>
     </div>
   )
 }

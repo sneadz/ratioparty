@@ -1,4 +1,4 @@
-import type { Player } from '@ratioparty/shared'
+import type { Player, GameOptions } from '@ratioparty/shared'
 
 export interface IGamePlugin<TState, TAction, TClientState> {
   readonly id: string
@@ -6,7 +6,7 @@ export interface IGamePlugin<TState, TAction, TClientState> {
   readonly maxPlayers: number
 
   /** Crée l'état initial de la partie */
-  init(players: Player[]): TState
+  init(players: Player[], options?: GameOptions): TState
 
   /**
    * Applique une action et retourne le nouvel état.

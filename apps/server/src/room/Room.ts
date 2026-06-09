@@ -16,6 +16,7 @@ export class Room {
   readonly createdAt: number
   hostId: string
   status: RoomSnapshot['status'] = 'lobby'
+  selectedGame: string | null = null
   players: Map<string, InternalPlayer> = new Map()
   gameSession: GameSession | null = null
   cumulativeScores: Record<string, number> = {}
@@ -79,6 +80,7 @@ export class Room {
       id: this.id,
       hostId: this.hostId,
       status: this.status,
+      selectedGame: this.selectedGame,
       cumulativeScores: this.cumulativeScores,
       players: [...this.players.values()].map(({ reconnectToken: _t, ...pub }) => pub),
     }

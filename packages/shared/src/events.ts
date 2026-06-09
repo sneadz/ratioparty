@@ -1,4 +1,4 @@
-import type { RoomSnapshot, WavelengthClientState, WavelengthAction } from './types.js'
+import type { RoomSnapshot, WavelengthClientState, WavelengthAction, GameOptions } from './types.js'
 
 // ─── Client → Serveur ────────────────────────────────────────────────────────
 
@@ -6,7 +6,8 @@ export interface ClientToServerEvents {
   create_room:    (data: { playerName: string; avatarConfig?: import('./types.js').AvatarConfig }) => void
   join_room:      (data: { code: string; playerName: string; avatarConfig?: import('./types.js').AvatarConfig }) => void
   reconnect_room: (data: { code: string; reconnectToken: string }) => void
-  game_start:     () => void
+  select_game:    (gameId: string | null) => void
+  game_start:     (options?: GameOptions) => void
   game_action:    (action: WavelengthAction) => void
 }
 

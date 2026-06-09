@@ -1,4 +1,4 @@
-import type { Player, WavelengthClientState, WavelengthAction, Spectrum } from '@ratioparty/shared'
+import type { Player, WavelengthClientState, WavelengthAction, Spectrum, GameOptions, TimerPreset } from '@ratioparty/shared'
 import { computeScore } from '@ratioparty/shared'
 import type { IGamePlugin } from '../../engine/IGamePlugin.js'
 import { pickSpectrum } from './spectra.js'
@@ -18,6 +18,8 @@ export interface WavelengthServerState {
   roundScore: number | null    // score obtenu ce round
   round: number                // commence à 1
   maxRounds: number
+  timer: TimerPreset
+  phaseStartedAt: number
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -32,6 +34,7 @@ function newRoundState(
   round: number,
   maxRounds: number,
   captainIndex: number,
+  timer: TimerPreset,
 ): Omit<WavelengthServerState, 'captainOrder' | 'cumulativeScores'> {
   const spectrum = pickSpectrum(prev.usedSpectra)
   return {
@@ -45,6 +48,8 @@ function newRoundState(
     roundScore: null,
     round,
     maxRounds,
+    timer,
+    phaseStartedAt: Date.now(),
   }
 }
 
@@ -59,15 +64,17 @@ export const wavelengthPlugin: IGamePlugin<
   minPlayers: 2,
   maxPlayers: 8,
 
-  init(players: Player[]): WavelengthServerState {
+  init(players: Player[], options?: GameOptions): WavelengthServerState {
     const captainOrder = players.map((p) => p.id)
-    const maxRounds = captainOrder.length  // chaque joueur est capitaine une fois
+    const rounds = options?.rounds ?? 1
+    const maxRounds = captainOrder.length * rounds
+    const timer = options?.timer ?? 'medium'
     const cumulativeScores = Object.fromEntries(captainOrder.map((id) => [id, 0]))
 
     return {
       captainOrder,
       cumulativeScores,
-      ...newRoundState({ captainOrder, cumulativeScores, usedSpectra: [] }, 1, maxRounds, 0),
+      ...newRoundState({ captainOrder, cumulativeScores, usedSpectra: [] }, 1, maxRounds, 0, timer),
     }
   },
 
@@ -80,7 +87,7 @@ export const wavelengthPlugin: IGamePlugin<
         if (playerId !== captainId) return state
         if (state.phase !== 'giving_clue') return state
         if (!action.clue?.trim()) return state
-        return { ...state, phase: 'guessing', clue: action.clue.trim() }
+        return { ...state, phase: 'guessing', clue: action.clue.trim(), phaseStartedAt: Date.now() }
       }
 
       case 'move_cursor': {
@@ -125,7 +132,7 @@ export const wavelengthPlugin: IGamePlugin<
         return {
           captainOrder: state.captainOrder,
           cumulativeScores: state.cumulativeScores,
-          ...newRoundState(state, nextRound, state.maxRounds, nextCaptainIndex),
+          ...newRoundState(state, nextRound, state.maxRounds, nextCaptainIndex, state.timer),
         }
       }
 
@@ -151,6 +158,8 @@ export const wavelengthPlugin: IGamePlugin<
       cumulativeScores: state.cumulativeScores,
       round: state.round,
       maxRounds: state.maxRounds,
+      timer: state.timer,
+      phaseStartedAt: state.phaseStartedAt,
     }
   },
 

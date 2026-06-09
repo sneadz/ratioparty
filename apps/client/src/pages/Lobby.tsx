@@ -5,6 +5,11 @@ import { socket } from '../socket.ts'
 import type { Player } from '@ratioparty/shared'
 import AvatarPreview from '../components/avatar/AvatarPreview.tsx'
 import { DEFAULT_AVATAR } from '../components/avatar/avatar.config.ts'
+import WavelengthLobby from '../games/wavelength/WavelengthLobby.tsx'
+
+const GAMES = [
+  { id: 'wavelength', label: 'Wavelength', description: '2–8 joueurs · Donner des indices sur un spectre' },
+]
 
 export default function Lobby() {
   const { code } = useParams<{ code: string }>()
@@ -25,8 +30,8 @@ export default function Lobby() {
     })
   }
 
-  function startGame() {
-    socket.emit('game_start')
+  function selectGame(gameId: string | null) {
+    socket.emit('select_game', gameId)
   }
 
   function leaveRoom() {
@@ -73,21 +78,38 @@ export default function Lobby() {
           ))}
         </div>
 
-        {isHost ? (
-          <div className="stack-sm">
-            <button className="btn btn-primary" disabled={connectedCount < 2} onClick={startGame}>
-              {connectedCount < 2 ? 'En attente de joueurs…' : 'Lancer Wavelength'}
-            </button>
-            {connectedCount < 2 && (
-              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                Il faut au moins 2 joueurs pour commencer.
+        {room.selectedGame === null ? (
+          isHost ? (
+            <div className="stack-sm">
+              <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                Choisir un jeu
               </p>
-            )}
-          </div>
+              {GAMES.map((game) => (
+                <button
+                  key={game.id}
+                  className="card-brutal"
+                  style={{ cursor: 'pointer', textAlign: 'left', width: '100%', background: 'none', border: '2px solid var(--border-strong)' }}
+                  onClick={() => selectGame(game.id)}
+                >
+                  <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1rem', color: 'var(--text)' }}>{game.label}</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.2rem' }}>{game.description}</p>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-display)', fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              L'hôte choisit un jeu…
+            </p>
+          )
         ) : (
-          <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-display)', fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            En attente que l'hôte lance…
-          </p>
+          <div className="stack-sm">
+            {isHost && (
+              <button className="btn btn-ghost" style={{ width: 'auto', alignSelf: 'flex-start' }} onClick={() => selectGame(null)}>
+                ← Changer de jeu
+              </button>
+            )}
+            {room.selectedGame === 'wavelength' && <WavelengthLobby isHost={isHost} room={room} />}
+          </div>
         )}
 
       </div>

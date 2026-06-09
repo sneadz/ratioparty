@@ -1,3 +1,18 @@
+// ─── Game options ─────────────────────────────────────────────────────────────
+
+export type TimerPreset = 'off' | 'fast' | 'medium' | 'long'
+
+export interface GameOptions {
+  rounds: number       // nombre de manches complètes (chaque joueur capitaine N fois)
+  timer: TimerPreset
+}
+
+export const TIMER_DURATIONS: Record<Exclude<TimerPreset, 'off'>, { clue: number; guess: number }> = {
+  fast:   { clue: 30,  guess: 20 },
+  medium: { clue: 60,  guess: 45 },
+  long:   { clue: 120, guess: 90 },
+}
+
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 
 export interface AvatarConfig {
@@ -24,6 +39,7 @@ export interface RoomSnapshot {
   hostId: string
   players: Player[]
   status: 'lobby' | 'playing' | 'results'
+  selectedGame: string | null
   cumulativeScores: Record<string, number>
 }
 
@@ -64,6 +80,8 @@ export interface WavelengthClientState {
   cumulativeScores: Record<string, number>
   round: number
   maxRounds: number
+  timer: TimerPreset
+  phaseStartedAt: number
 }
 
 export type WavelengthAction =
