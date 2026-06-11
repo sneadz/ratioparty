@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DA Preview — RatioParty</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 3rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .label {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: #555;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .preview {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .preview-inner {
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2rem;
+    }
+
+    .preview-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 3rem;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+      line-height: 0.95;
+    }
+
+    .preview-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 400;
+      line-height: 1.55;
+      max-width: 28ch;
+    }
+
+    /* Bouton commun aux 3 */
+    .btn {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 0.8rem 1.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn:hover  { transform: translate(-1px, -1px); }
+    .btn:active { transform: translate(2px, 2px); }
+
+    .tag {
+      display: inline-block;
+      font-family: monospace;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    hr { border: none; border-top: 1px solid #1e1e1e; width: 100%; max-width: 420px; }
+
+    /* ══════════════════════════════════════════════
+       VARIANTE A — Noir graphique
+       Fond quasi-noir pur, rouge vif.
+       Contraste maximal, très imprimé.
+    ══════════════════════════════════════════════ */
+    .da-a { background: #0e0e0e; }
+    .da-a .preview-title { color: #f2f2f2; }
+    .da-a .preview-title span { color: #e8390e; }
+    .da-a .preview-sub { color: #666; }
+    .da-a .btn {
+      background: #e8390e;
+      color: #f2f2f2;
+      border: 2.5px solid #f2f2f2;
+      box-shadow: 3px 3px 0 #f2f2f2;
+    }
+    .da-a .btn:hover  { box-shadow: 4px 4px 0 #f2f2f2; }
+    .da-a .btn:active { box-shadow: 1px 1px 0 #f2f2f2; }
+
+    /* ══════════════════════════════════════════════
+       VARIANTE B — Ardoise bleue nuit
+       Fond bleu très sombre, accent jaune/citron.
+       Plus froid, référence affiches de cinéma.
+    ══════════════════════════════════════════════ */
+    .da-b { background: #0b0d14; }
+    .da-b .preview-title { color: #eeeef5; }
+    .da-b .preview-title span { color: #f0d840; }
+    .da-b .preview-sub { color: #5a5d72; }
+    .da-b .btn {
+      background: #f0d840;
+      color: #0b0d14;
+      border: 2.5px solid #eeeef5;
+      box-shadow: 3px 3px 0 #eeeef5;
+    }
+    .da-b .btn:hover  { box-shadow: 4px 4px 0 #eeeef5; }
+    .da-b .btn:active { box-shadow: 1px 1px 0 #eeeef5; }
+
+    /* ══════════════════════════════════════════════
+       VARIANTE C — Vert encre
+       Fond vert très sombre, accent blanc cassé.
+       Référence vieilles affiches, sérigraphie.
+    ══════════════════════════════════════════════ */
+    .da-c { background: #0a100d; }
+    .da-c .preview-title { color: #e8f0e4; }
+    .da-c .preview-title span { color: #5dde82; }
+    .da-c .preview-sub { color: #4a5e50; }
+    .da-c .btn {
+      background: transparent;
+      color: #e8f0e4;
+      border: 2.5px solid #e8f0e4;
+      box-shadow: 3px 3px 0 #5dde82;
+    }
+    .da-c .btn:hover  { box-shadow: 4px 4px 0 #5dde82; background: #5dde8218; }
+    .da-c .btn:active { box-shadow: 1px 1px 0 #5dde82; }
+
+    /* ══════════════════════════════════════════════
+       VARIANTE RETENUE — Papier brutal sombre (marron)
+       La version d'origine pour référence
+    ══════════════════════════════════════════════ */
+    .da-ref { background: #18120e; opacity: 0.5; }
+    .da-ref .preview-title { color: #f0ece4; }
+    .da-ref .preview-title span { color: #e8390e; }
+    .da-ref .preview-sub { color: #8a7f74; }
+    .da-ref .btn {
+      background: #e8390e;
+      color: #f0ece4;
+      border: 2.5px solid #f0ece4;
+      box-shadow: 3px 3px 0 #f0ece4;
+    }
+  </style>
+</head>
+<body>
+
+  <div style="width:100%;max-width:420px;text-align:center">
+    <p style="font-family:monospace;font-size:0.7rem;color:#444;letter-spacing:0.1em">MÊME DA · BRUTAL SOMBRE · 3 FONDS DIFFÉRENTS</p>
+  </div>
+
+  <!-- ─── A ─── -->
+  <div style="width:100%;max-width:420px">
+    <p class="label">A — Noir graphique · Rouge</p>
+    <div class="preview da-a">
+      <div class="preview-inner">
+        <span class="tag">fond #0e0e0e · accent #e8390e</span>
+        <div class="preview-title">Joue<br>avec<br><span>tes amis</span></div>
+        <p class="preview-sub">Crée une partie et partage le lien. Pas de compte, juste un pseudo.</p>
+        <button class="btn">Créer une partie</button>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ─── B ─── -->
+  <div style="width:100%;max-width:420px">
+    <p class="label">B — Ardoise nuit · Jaune citron</p>
+    <div class="preview da-b">
+      <div class="preview-inner">
+        <span class="tag">fond #0b0d14 · accent #f0d840</span>
+        <div class="preview-title">Joue<br>avec<br><span>tes amis</span></div>
+        <p class="preview-sub">Crée une partie et partage le lien. Pas de compte, juste un pseudo.</p>
+        <button class="btn">Créer une partie</button>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ─── C ─── -->
+  <div style="width:100%;max-width:420px">
+    <p class="label">C — Vert encre · Vert clair</p>
+    <div class="preview da-c">
+      <div class="preview-inner">
+        <span class="tag">fond #0a100d · accent #5dde82</span>
+        <div class="preview-title">Joue<br>avec<br><span>tes amis</span></div>
+        <p class="preview-sub">Crée une partie et partage le lien. Pas de compte, juste un pseudo.</p>
+        <button class="btn">Créer une partie</button>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ─── REF (grisée) ─── -->
+  <div style="width:100%;max-width:420px">
+    <p class="label" style="color:#333">REF — Marron (écarté)</p>
+    <div class="preview da-ref">
+      <div class="preview-inner">
+        <span class="tag">fond #18120e · écarté</span>
+        <div class="preview-title">Joue<br>avec<br><span>tes amis</span></div>
+        <p class="preview-sub">Crée une partie et partage le lien. Pas de compte, juste un pseudo.</p>
+        <button class="btn">Créer une partie</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
