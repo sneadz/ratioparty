@@ -33,7 +33,7 @@ if (IS_PROD) {
 
 const httpServer = createServer(app)
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
-  cors: IS_PROD ? false : { origin: CLIENT_URL },
+  cors: IS_PROD ? undefined : { origin: CLIENT_URL },
 })
 
 io.on('connection', (socket) => {
