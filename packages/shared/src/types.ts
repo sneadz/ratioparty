@@ -81,6 +81,7 @@ export interface WavelengthClientState {
   /** Positions individuelles de chaque joueur non-capitaine */
   cursorPositions: Record<string, number>
   roundScore: number | null       // score obtenu ce round, visible en reveal
+  roundWinnerId: string | null   // joueur le plus proche ce round, visible en reveal
   cumulativeScores: Record<string, number>
   round: number
   maxRounds: number
@@ -93,3 +94,4 @@ export type WavelengthAction =
   | { type: 'move_cursor'; position: number }
   | { type: 'lock_guess' }
   | { type: 'next_round' }
+  | { type: 'skip_captain' }

@@ -5,6 +5,7 @@ import PhaseClue from './PhaseClue.tsx'
 import PhaseGuess from './PhaseGuess.tsx'
 import PhaseReveal from './PhaseReveal.tsx'
 import { setVolume, getVolume } from '../../sounds.ts'
+import { socket } from '../../socket.ts'
 import AvatarPreview from '../../components/avatar/AvatarPreview.tsx'
 import { DEFAULT_AVATAR } from '../../components/avatar/avatar.config.ts'
 
@@ -16,8 +17,15 @@ interface Props {
 
 export default function WavelengthGame({ state, playerId, room }: Props) {
   const isCaptain = playerId === state.captainId
+  const isHost = playerId === room.hostId
   const captainName = room.players.find((p) => p.id === state.captainId)?.name ?? '?'
   const [volume, setVolumeState] = useState(getVolume)
+  const [confirmAbort, setConfirmAbort] = useState(false)
+
+  function abortGame() {
+    socket.emit('game_abort')
+    setConfirmAbort(false)
+  }
 
   return (
     <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden' }}>
@@ -86,6 +94,29 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
                 className="volume-slider"
               />
             </div>
+
+            {isHost && !confirmAbort && (
+              <button
+                className="btn btn-ghost"
+                style={{ fontSize: '0.7rem', padding: '0.35rem 0.5rem', color: 'var(--text-muted)' }}
+                onClick={() => setConfirmAbort(true)}
+              >
+                Abandonner la partie
+              </button>
+            )}
+            {isHost && confirmAbort && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', textAlign: 'center' }}>
+                  Vraiment ?
+                </p>
+                <button className="btn btn-primary" style={{ fontSize: '0.7rem', padding: '0.35rem 0.5rem' }} onClick={abortGame}>
+                  Oui, retour lobby
+                </button>
+                <button className="btn btn-ghost" style={{ fontSize: '0.7rem', padding: '0.35rem 0.5rem' }} onClick={() => setConfirmAbort(false)}>
+                  Annuler
+                </button>
+              </div>
+            )}
           </div>
 
         </div>

@@ -9,6 +9,8 @@ export interface ClientToServerEvents {
   select_game:    (gameId: string | null) => void
   game_start:     (options?: GameOptions) => void
   game_action:    (action: WavelengthAction) => void
+  game_abort:     () => void
+  kick_player:    (playerId: string) => void
 }
 
 // ─── Serveur → Client ────────────────────────────────────────────────────────

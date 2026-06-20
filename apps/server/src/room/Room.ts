@@ -67,6 +67,12 @@ export class Room {
     return null
   }
 
+  kickPlayer(socketId: string): boolean {
+    if (!this.players.has(socketId)) return false
+    this.players.delete(socketId)
+    return true
+  }
+
   getReconnectToken(socketId: string): string | undefined {
     return this.players.get(socketId)?.reconnectToken
   }

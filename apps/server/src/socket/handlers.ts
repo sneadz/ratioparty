@@ -118,6 +118,7 @@ export function registerHandlers(io: AppServer, socket: AppSocket): void {
         room.cumulativeScores[socket.id] = room.cumulativeScores[oldId]
         delete room.cumulativeScores[oldId]
       }
+      gs.disconnectedIds = gs.disconnectedIds.filter((id) => id !== oldId && id !== socket.id)
     }
 
     socket.join(room.id)
@@ -205,6 +206,39 @@ export function registerHandlers(io: AppServer, socket: AppSocket): void {
     if (newState.phase !== oldPhase) schedulePhaseTimer(io, room.id, newState)
   })
 
+  // ── Kick un joueur ──────────────────────────────────────────────────────────
+  socket.on('kick_player', (targetId) => {
+    const found = roomManager.findBySocketId(socket.id)
+    if (!found) return
+    const { room } = found
+
+    if (socket.id !== room.hostId) return
+    if (targetId === socket.id) return  // l'hôte ne peut pas se kicker lui-même
+    const target = room.players.get(targetId)
+    if (!target || target.isConnected) return  // kick uniquement les déco
+
+    room.kickPlayer(targetId)
+    io.to(room.id).emit('room_updated', room.toSnapshot())
+    console.log(`[room] ${targetId} kické de ${room.id}`)
+  })
+
+  // ── Abandonner la partie ────────────────────────────────────────────────────
+  socket.on('game_abort', () => {
+    const found = roomManager.findBySocketId(socket.id)
+    if (!found) return
+    const { room } = found
+
+    if (socket.id !== room.hostId) { socket.emit('error', { message: 'Seul le host peut abandonner la partie.' }); return }
+    if (!room.gameSession) return
+
+    clearRoomTimer(room.id)
+    room.status = 'lobby'
+    room.gameSession = null
+    room.cumulativeScores = {}
+    io.to(room.id).emit('room_updated', room.toSnapshot())
+    console.log(`[game] partie abandonnée dans ${room.id} par ${socket.id}`)
+  })
+
   // ── Déconnexion ─────────────────────────────────────────────────────────────
   socket.on('disconnect', () => {
     const found = roomManager.findBySocketId(socket.id)
@@ -212,6 +246,30 @@ export function registerHandlers(io: AppServer, socket: AppSocket): void {
     const { room, code } = found
 
     room.markDisconnected(socket.id)
+
+    if (room.gameSession) {
+      const gs = room.gameSession.state as WavelengthServerState
+      if (!gs.disconnectedIds.includes(socket.id)) gs.disconnectedIds.push(socket.id)
+
+      // Si le capitaine se déco pendant giving_clue, passer son tour
+      const captainId = gs.captainOrder[gs.currentCaptainIndex]
+      if (gs.phase === 'giving_clue' && captainId === socket.id) {
+        const plugin = gameEngine.get(room.gameSession.pluginId)
+        const newState = plugin.handleAction(gs, socket.id, { type: 'skip_captain' }) as WavelengthServerState
+        room.gameSession.state = newState
+        clearRoomTimer(room.id)
+        if (plugin.isRoundOver(newState)) {
+          room.status = 'lobby'
+          room.gameSession = null
+          room.cumulativeScores = {}
+          io.to(room.id).emit('room_updated', room.toSnapshot())
+          return
+        }
+        broadcastGameState(io, room.id, room.gameSession.pluginId, newState)
+        schedulePhaseTimer(io, room.id, newState)
+      }
+    }
+
     io.to(room.id).emit('room_updated', room.toSnapshot())
     console.log(`[room] ${socket.id} déconnecté de ${room.id}`)
 

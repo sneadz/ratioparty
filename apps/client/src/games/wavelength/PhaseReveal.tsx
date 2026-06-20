@@ -22,6 +22,8 @@ export default function PhaseReveal({ state, playerId, room }: Props) {
   const score = state.roundScore ?? 0
   const scoreLabel = SCORE_LABELS[score] ?? SCORE_LABELS[0]
   const isGameOver = state.round >= state.maxRounds
+  const winner = state.roundWinnerId ? room.players.find((p) => p.id === state.roundWinnerId) : null
+  const iWon = state.roundWinnerId === playerId
 
   useEffect(() => {
     playScore(score)
@@ -44,20 +46,26 @@ export default function PhaseReveal({ state, playerId, room }: Props) {
             </p>
           )}
           <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800, color: scoreLabel.color, lineHeight: 1 }}>
-            +{score}
+            {score > 0 ? `+${score}` : '0'}
           </p>
           <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.75rem', fontWeight: 700, color: scoreLabel.color, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            {scoreLabel.label}
+            {winner
+              ? iWon ? `${scoreLabel.label} — c'est toi !` : `${scoreLabel.label} — ${winner.name}`
+              : scoreLabel.label}
           </p>
         </div>
       </div>
 
-      {/* Spectre avec zones */}
+      {/* Spectre avec zones + tous les curseurs */}
       <SpectrumBar
         state={state}
-        showTarget={false}
+        showTarget={true}
         showZones={true}
         showCursor={true}
+        individualCursors={Object.entries(state.cursorPositions).map(([id, pos]) => ({
+          position: pos,
+          isMe: id === playerId,
+        }))}
       />
 
       {/* Action hôte */}

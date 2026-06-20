@@ -16,6 +16,8 @@ export interface WavelengthServerState {
   cursorPositions: Record<string, number>  // 0-100, par playerId (non-capitaines uniquement)
   cumulativeScores: Record<string, number>
   roundScore: number | null    // score obtenu ce round
+  roundWinnerId: string | null // joueur le plus proche ce round
+  disconnectedIds: string[]    // joueurs actuellement déconnectés
   round: number                // commence à 1
   maxRounds: number
   timer: TimerPreset
@@ -34,8 +36,17 @@ function averageCursor(positions: Record<string, number>, nonCaptainIds: string[
   return Math.round(sum / nonCaptainIds.length)
 }
 
+function nextConnectedCaptainIndex(captainOrder: string[], currentIndex: number, disconnectedIds: string[]): number {
+  const disconnected = new Set(disconnectedIds)
+  for (let i = 1; i <= captainOrder.length; i++) {
+    const idx = (currentIndex + i) % captainOrder.length
+    if (!disconnected.has(captainOrder[idx])) return idx
+  }
+  return (currentIndex + 1) % captainOrder.length // fallback
+}
+
 function newRoundState(
-  prev: Pick<WavelengthServerState, 'captainOrder' | 'cumulativeScores' | 'usedSpectra'>,
+  prev: Pick<WavelengthServerState, 'captainOrder' | 'cumulativeScores' | 'usedSpectra' | 'disconnectedIds'>,
   round: number,
   maxRounds: number,
   captainIndex: number,
@@ -51,6 +62,8 @@ function newRoundState(
     clue: null,
     cursorPositions: {},
     roundScore: null,
+    roundWinnerId: null,
+    disconnectedIds: prev.disconnectedIds,
     round,
     maxRounds,
     timer,
@@ -79,7 +92,7 @@ export const wavelengthPlugin: IGamePlugin<
     return {
       captainOrder,
       cumulativeScores,
-      ...newRoundState({ captainOrder, cumulativeScores, usedSpectra: [] }, 1, maxRounds, 0, timer),
+      ...newRoundState({ captainOrder, cumulativeScores, usedSpectra: [], disconnectedIds: [] }, 1, maxRounds, 0, timer),
     }
   },
 
@@ -106,22 +119,31 @@ export const wavelengthPlugin: IGamePlugin<
         if (playerId === captainId) return state  // capitaine ne valide pas
         if (state.phase !== 'guessing') return state
 
-        const nonCaptainIds = state.captainOrder.filter((id) => id !== captainId)
-        const avgPosition = averageCursor(state.cursorPositions, nonCaptainIds)
-        const roundScore = computeScore(state.target, avgPosition)
+        const nonCaptainIds = state.captainOrder.filter((id) => id !== captainId && !state.disconnectedIds.includes(id))
 
-        // Tous les joueurs non-capitaines reçoivent le score de la manche
+        // Trouver le joueur le plus proche de la cible
+        let winnerId: string | null = null
+        let bestDist = Infinity
+        for (const id of nonCaptainIds) {
+          const pos = state.cursorPositions[id] ?? 50
+          const dist = Math.abs(state.target - pos)
+          if (dist < bestDist) { bestDist = dist; winnerId = id }
+        }
+
+        const winnerPos = winnerId !== null ? (state.cursorPositions[winnerId] ?? 50) : 50
+        const roundScore = computeScore(state.target, winnerPos)
+
+        // Seul le gagnant reçoit les points (0 pour tout le monde si score = 0)
         const newCumulative = { ...state.cumulativeScores }
-        for (const id of state.captainOrder) {
-          if (id !== captainId) {
-            newCumulative[id] = (newCumulative[id] ?? 0) + roundScore
-          }
+        if (winnerId && roundScore > 0) {
+          newCumulative[winnerId] = (newCumulative[winnerId] ?? 0) + roundScore
         }
 
         return {
           ...state,
           phase: 'reveal',
           roundScore,
+          roundWinnerId: winnerId,
           cumulativeScores: newCumulative,
         }
       }
@@ -131,11 +153,26 @@ export const wavelengthPlugin: IGamePlugin<
 
         const nextRound = state.round + 1
         if (nextRound > state.maxRounds) {
-          // Partie terminée — on laisse le serveur gérer le retour au lobby
           return { ...state, phase: 'reveal', round: nextRound }
         }
 
-        const nextCaptainIndex = (state.currentCaptainIndex + 1) % state.captainOrder.length
+        const nextCaptainIndex = nextConnectedCaptainIndex(state.captainOrder, state.currentCaptainIndex, state.disconnectedIds)
+        return {
+          captainOrder: state.captainOrder,
+          cumulativeScores: state.cumulativeScores,
+          ...newRoundState(state, nextRound, state.maxRounds, nextCaptainIndex, state.timer),
+        }
+      }
+
+      case 'skip_captain': {
+        if (state.phase !== 'giving_clue') return state
+
+        const nextRound = state.round + 1
+        if (nextRound > state.maxRounds) {
+          return { ...state, phase: 'reveal', round: nextRound }
+        }
+
+        const nextCaptainIndex = nextConnectedCaptainIndex(state.captainOrder, state.currentCaptainIndex, state.disconnectedIds)
         return {
           captainOrder: state.captainOrder,
           cumulativeScores: state.cumulativeScores,
@@ -155,6 +192,10 @@ export const wavelengthPlugin: IGamePlugin<
     const nonCaptainIds = state.captainOrder.filter((id) => id !== captainId)
     const avgCursor = averageCursor(state.cursorPositions, nonCaptainIds)
 
+    const winnerPos = isReveal && state.roundWinnerId
+      ? (state.cursorPositions[state.roundWinnerId] ?? 50)
+      : avgCursor
+
     return {
       phase: state.phase,
       captainId,
@@ -162,10 +203,11 @@ export const wavelengthPlugin: IGamePlugin<
       // La cible est visible uniquement pour le capitaine ou en révélation
       target: (isCaptain || isReveal) ? state.target : null,
       clue: state.clue,
-      cursorPosition: avgCursor,
+      cursorPosition: isReveal ? winnerPos : avgCursor,
       myCursorPosition: state.cursorPositions[playerId] ?? 50,
       cursorPositions: state.cursorPositions,
       roundScore: isReveal ? state.roundScore : null,
+      roundWinnerId: isReveal ? state.roundWinnerId : null,
       cumulativeScores: state.cumulativeScores,
       round: state.round,
       maxRounds: state.maxRounds,

@@ -74,7 +74,13 @@ export default function Lobby() {
             <span className="badge badge-accent">{connectedCount}/{room.players.length}</span>
           </div>
           {room.players.map((player: Player) => (
-            <PlayerRow key={player.id} player={player} isMe={player.id === playerId} />
+            <PlayerRow
+              key={player.id}
+              player={player}
+              isMe={player.id === playerId}
+              canKick={isHost && !player.isConnected && player.id !== playerId}
+              onKick={() => socket.emit('kick_player', player.id)}
+            />
           ))}
         </div>
 
@@ -117,7 +123,7 @@ export default function Lobby() {
   )
 }
 
-function PlayerRow({ player, isMe }: { player: Player; isMe: boolean }) {
+function PlayerRow({ player, isMe, canKick, onKick }: { player: Player; isMe: boolean; canKick?: boolean; onKick?: () => void }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0', borderBottom: '1px solid var(--border)', opacity: player.isConnected ? 1 : 0.4 }}>
       <AvatarPreview config={player.avatarConfig ?? DEFAULT_AVATAR} size={36} style={{ border: '1.5px solid var(--border-strong)' }} />
@@ -125,6 +131,15 @@ function PlayerRow({ player, isMe }: { player: Player; isMe: boolean }) {
       <div className="row" style={{ gap: '0.4rem' }}>
         {player.isHost && <span className="badge badge-accent">hôte</span>}
         {isMe          && <span className="badge badge-muted">toi</span>}
+        {canKick && (
+          <button
+            className="btn btn-ghost"
+            style={{ fontSize: '0.65rem', padding: '0.2rem 0.5rem', color: 'var(--text-muted)' }}
+            onClick={onKick}
+          >
+            Exclure
+          </button>
+        )}
         <span style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: player.isConnected ? 'var(--success)' : 'var(--text-muted)', boxShadow: player.isConnected ? '0 0 6px var(--success)' : 'none' }} />
       </div>
     </div>
