@@ -74,8 +74,12 @@ export interface WavelengthClientState {
   /** null pour les non-capitaines pendant giving_clue et guessing */
   target: number | null
   clue: string | null
-  /** Curseur partagé (0-100) — tout le monde le voit en temps réel */
+  /** Moyenne de tous les curseurs individuels (0-100) — utilisée pour le score et l'affichage équipe */
   cursorPosition: number
+  /** Position personnelle du joueur (0-100) */
+  myCursorPosition: number
+  /** Positions individuelles de chaque joueur non-capitaine */
+  cursorPositions: Record<string, number>
   roundScore: number | null       // score obtenu ce round, visible en reveal
   cumulativeScores: Record<string, number>
   round: number

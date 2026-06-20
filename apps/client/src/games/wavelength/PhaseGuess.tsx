@@ -7,11 +7,12 @@ import { playTick, playLockGuess } from '../../sounds.ts'
 interface Props {
   state: WavelengthClientState
   isCaptain: boolean
+  playerId: string
 }
 
 const THROTTLE_MS = 40
 
-export default function PhaseGuess({ state, isCaptain }: Props) {
+export default function PhaseGuess({ state, isCaptain, playerId }: Props) {
   const lastEmit = useRef(0)
 
   function handleCursorChange(pos: number) {
@@ -35,7 +36,7 @@ export default function PhaseGuess({ state, isCaptain }: Props) {
       {/* Indice */}
       <div className="card-brutal" style={{ textAlign: 'center', width: 560, margin: '0 auto' }}>
         <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-          L'indice un peu nul du capichef
+          L'indice un peu nul du/de la capichef
         </p>
         <p style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
           {state.clue}
@@ -45,11 +46,15 @@ export default function PhaseGuess({ state, isCaptain }: Props) {
       {/* Spectre + curseur */}
       <SpectrumBar
         state={state}
-        showTarget={false}
+        showTarget={isCaptain}
         showZones={false}
         showCursor={true}
         cursorDraggable={!isCaptain}
         onCursorChange={handleCursorChange}
+        individualCursors={Object.entries(state.cursorPositions).map(([id, pos]) => ({
+          position: pos,
+          isMe: id === playerId,
+        }))}
       />
 
       {/* Slider natif pour précision */}
@@ -59,7 +64,7 @@ export default function PhaseGuess({ state, isCaptain }: Props) {
             type="range"
             min={0}
             max={100}
-            value={state.cursorPosition}
+            value={state.myCursorPosition}
             onChange={(e) => handleCursorChange(Number(e.target.value))}
             style={{
               width: '100%',
@@ -76,7 +81,7 @@ export default function PhaseGuess({ state, isCaptain }: Props) {
 
       {isCaptain && (
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-display)', fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-          Les gros nooblards sont en train de voter...
+          Les gros nooblard(e)s sont en train de voter...
         </p>
       )}
 

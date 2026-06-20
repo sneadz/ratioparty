@@ -13,7 +13,7 @@ export interface WavelengthServerState {
   usedSpectra: Spectrum[]
   target: number               // 0-100
   clue: string | null
-  cursorPosition: number       // 0-100, curseur partagé
+  cursorPositions: Record<string, number>  // 0-100, par playerId (non-capitaines uniquement)
   cumulativeScores: Record<string, number>
   roundScore: number | null    // score obtenu ce round
   round: number                // commence à 1
@@ -25,8 +25,13 @@ export interface WavelengthServerState {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function randomTarget(): number {
-  // Évite les bords extrêmes (0-10 et 90-100) pour que ce soit jouable
-  return Math.floor(Math.random() * 80) + 10
+  return Math.floor(Math.random() * 101)
+}
+
+function averageCursor(positions: Record<string, number>, nonCaptainIds: string[]): number {
+  if (nonCaptainIds.length === 0) return 50
+  const sum = nonCaptainIds.reduce((acc, id) => acc + (positions[id] ?? 50), 0)
+  return Math.round(sum / nonCaptainIds.length)
 }
 
 function newRoundState(
@@ -44,7 +49,7 @@ function newRoundState(
     usedSpectra: [...prev.usedSpectra, spectrum],
     target: randomTarget(),
     clue: null,
-    cursorPosition: 50,
+    cursorPositions: {},
     roundScore: null,
     round,
     maxRounds,
@@ -94,14 +99,16 @@ export const wavelengthPlugin: IGamePlugin<
         if (playerId === captainId) return state  // capitaine ne peut pas bouger
         if (state.phase !== 'guessing') return state
         const position = Math.max(0, Math.min(100, action.position))
-        return { ...state, cursorPosition: position }
+        return { ...state, cursorPositions: { ...state.cursorPositions, [playerId]: position } }
       }
 
       case 'lock_guess': {
         if (playerId === captainId) return state  // capitaine ne valide pas
         if (state.phase !== 'guessing') return state
 
-        const roundScore = computeScore(state.target, state.cursorPosition)
+        const nonCaptainIds = state.captainOrder.filter((id) => id !== captainId)
+        const avgPosition = averageCursor(state.cursorPositions, nonCaptainIds)
+        const roundScore = computeScore(state.target, avgPosition)
 
         // Tous les joueurs non-capitaines reçoivent le score de la manche
         const newCumulative = { ...state.cumulativeScores }
@@ -145,6 +152,8 @@ export const wavelengthPlugin: IGamePlugin<
     const captainId = state.captainOrder[state.currentCaptainIndex]
     const isCaptain = playerId === captainId
     const isReveal = state.phase === 'reveal'
+    const nonCaptainIds = state.captainOrder.filter((id) => id !== captainId)
+    const avgCursor = averageCursor(state.cursorPositions, nonCaptainIds)
 
     return {
       phase: state.phase,
@@ -153,7 +162,9 @@ export const wavelengthPlugin: IGamePlugin<
       // La cible est visible uniquement pour le capitaine ou en révélation
       target: (isCaptain || isReveal) ? state.target : null,
       clue: state.clue,
-      cursorPosition: state.cursorPosition,
+      cursorPosition: avgCursor,
+      myCursorPosition: state.cursorPositions[playerId] ?? 50,
+      cursorPositions: state.cursorPositions,
       roundScore: isReveal ? state.roundScore : null,
       cumulativeScores: state.cumulativeScores,
       round: state.round,

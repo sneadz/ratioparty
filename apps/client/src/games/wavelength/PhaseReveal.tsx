@@ -14,7 +14,7 @@ const SCORE_LABELS: Record<number, { label: string; color: string }> = {
   4: { label: 'Goatesque 🐐',           color: 'var(--accent)' },
   3: { label: 'Nice 👌',                color: '#c25010' },
   2: { label: 'Ok tier 😐',             color: '#7a2a0e' },
-  0: { label: 'Ahahah le mauvais ! 😂', color: 'var(--text-muted)' },
+  0: { label: 'Ahahah le/la mauvais(e) ! 😂', color: 'var(--text-muted)' },
 }
 
 export default function PhaseReveal({ state, playerId, room }: Props) {
@@ -70,7 +70,7 @@ export default function PhaseReveal({ state, playerId, room }: Props) {
       )}
       {!isHost && (
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontFamily: 'var(--font-display)', fontSize: '0.75rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-          Le capichef ronfle, on l'attend...
+          Le/la capichef ronfle, on l'attend...
         </p>
       )}
 

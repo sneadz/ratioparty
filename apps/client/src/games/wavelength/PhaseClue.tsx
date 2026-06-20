@@ -69,9 +69,10 @@ interface SpectrumBarProps {
   showCursor: boolean
   onCursorChange?: (pos: number) => void
   cursorDraggable?: boolean
+  individualCursors?: { position: number; isMe: boolean }[]
 }
 
-export function SpectrumBar({ state, showTarget, showZones, showCursor, onCursorChange, cursorDraggable }: SpectrumBarProps) {
+export function SpectrumBar({ state, showTarget, showZones, showCursor, onCursorChange, cursorDraggable, individualCursors }: SpectrumBarProps) {
   const { spectrum, target, cursorPosition } = state
 
   function buildGradient() {
@@ -176,7 +177,23 @@ export function SpectrumBar({ state, showTarget, showZones, showCursor, onCursor
             </div>
           )}
 
-          {/* Curseur partagé */}
+          {/* Curseurs individuels (phase guess, plusieurs joueurs) */}
+          {individualCursors?.map((c, i) => (
+            <div key={i} style={{
+              position: 'absolute',
+              left: `${c.position}%`,
+              top: 0,
+              bottom: 0,
+              width: 2,
+              background: c.isMe ? 'var(--accent)' : 'rgba(255,255,255,0.35)',
+              transform: 'translateX(-50%)',
+              borderRadius: 1,
+              zIndex: 1,
+              transition: 'left 0.1s',
+            }} />
+          ))}
+
+          {/* Curseur moyen (équipe) */}
           {showCursor && (
             <div style={{
               position: 'absolute',

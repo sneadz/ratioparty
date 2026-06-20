@@ -31,6 +31,21 @@ export const SPECTRA: Spectrum[] = [
   { left: 'Ça vieillit bien',  right: 'Ça vieillit mal' },
   { left: 'Ferait un bon super-héros',  right: 'Ferait un super-héros nul' },
   { left: 'Trop commun',       right: 'Trop bizarre' },
+  { left: 'Trop sucré',        right: 'Pas assez sucré' },
+  { left: 'Ferait un bon président',   right: 'Ferait un président catastrophique' },
+  { left: 'Acceptable en public',      right: 'Honteux en public' },
+  { left: 'Adulte',            right: 'Enfantin' },
+  { left: 'Philosophique',     right: 'Superficiel' },
+  { left: 'Ferait un bon voisin',      right: 'Ferait un voisin cauchemardesque' },
+  { left: 'Trop sérieux',      right: 'Pas assez sérieux' },
+  { left: 'Cliché',            right: 'Original' },
+  { left: 'Stressant',         right: 'Relaxant' },
+  { left: 'Ferait un bon tatouage',    right: 'Ferait un tatouage regrettable' },
+  { left: 'Addict',            right: "On s'en lasse vite" },
+  { left: 'Prévisible',        right: 'Imprévisible' },
+  { left: 'Ferait un bon mot de passe', right: 'Ferait un mot de passe nul' },
+  { left: 'Universel',         right: 'Très niché' },
+  { left: 'Inspirant',         right: 'Déprimant' },
 ]
 
 export function pickSpectrum(exclude: Spectrum[] = []): Spectrum {

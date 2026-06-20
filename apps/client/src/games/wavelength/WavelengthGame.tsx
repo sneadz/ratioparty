@@ -105,13 +105,13 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
                 {state.phase === 'guessing' ? 'Sous indice prime,' : 'À toi de'}<br />
                 {state.phase === 'guessing' ? 'maintenant on attend.' : 'jouer ma foi.'}
               </h1>
-              <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>C'est toi le capichef.</p>
+              <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>C'est toi le/la capichef.</p>
             </div>
           ) : (
             <div>
               <h1>Devine,<br />c'est facile...</h1>
               <p style={{ color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                {state.phase === 'giving_clue' ? `${captainName} choisi (il est si long...)` : 'Soit précis bon sang !'}
+                {state.phase === 'giving_clue' ? `${captainName} choisit (il ou elle est si long(ue)...)` : 'Soit précis(e) bon sang !'}
               </p>
             </div>
           )}
@@ -119,7 +119,7 @@ export default function WavelengthGame({ state, playerId, room }: Props) {
           <TimerBar state={state} />
 
           {state.phase === 'giving_clue' && <PhaseClue state={state} isCaptain={isCaptain} />}
-          {state.phase === 'guessing'     && <PhaseGuess state={state} isCaptain={isCaptain} />}
+          {state.phase === 'guessing'     && <PhaseGuess state={state} isCaptain={isCaptain} playerId={playerId} />}
           {state.phase === 'reveal'       && <PhaseReveal state={state} playerId={playerId} room={room} />}
 
         </div>
