@@ -97,12 +97,32 @@ export function registerHandlers(io: AppServer, socket: AppSocket): void {
   socket.on('reconnect_room', ({ code, reconnectToken }) => {
     const room = roomManager.get(code)
     if (!room) { socket.emit('error', { message: 'Room introuvable.' }); return }
-    const player = room.reconnect(reconnectToken, socket.id)
-    if (!player) { socket.emit('error', { message: 'Session expirée.' }); return }
+    const result = room.reconnect(reconnectToken, socket.id)
+    if (!result) { socket.emit('error', { message: 'Session expirée.' }); return }
+    const { player, oldId } = result
+
+    // Mettre à jour les IDs dans l'état de jeu si une partie est en cours
+    if (room.gameSession && oldId !== socket.id) {
+      const gs = room.gameSession.state as WavelengthServerState
+      const idx = gs.captainOrder.indexOf(oldId)
+      if (idx !== -1) gs.captainOrder[idx] = socket.id
+      if (oldId in gs.cursorPositions) {
+        gs.cursorPositions[socket.id] = gs.cursorPositions[oldId]
+        delete gs.cursorPositions[oldId]
+      }
+      if (oldId in gs.cumulativeScores) {
+        gs.cumulativeScores[socket.id] = gs.cumulativeScores[oldId]
+        delete gs.cumulativeScores[oldId]
+      }
+      if (oldId in room.cumulativeScores) {
+        room.cumulativeScores[socket.id] = room.cumulativeScores[oldId]
+        delete room.cumulativeScores[oldId]
+      }
+    }
+
     socket.join(room.id)
     socket.emit('room_joined', { room: room.toSnapshot(), playerId: socket.id, reconnectToken })
     socket.to(room.id).emit('room_updated', room.toSnapshot())
-    // Si une partie est en cours, renvoyer l'état du jeu
     if (room.gameSession) {
       broadcastGameState(io, room.id, room.gameSession.pluginId, room.gameSession.state)
     }

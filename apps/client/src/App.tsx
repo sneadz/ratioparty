@@ -38,6 +38,10 @@ function SocketBridge() {
 
     socket.on('error', ({ message }) => {
       console.error('[socket error]', message)
+      if (message === 'Room introuvable.' || message === 'Session expirée.') {
+        localStorage.removeItem('rp_code')
+        localStorage.removeItem('rp_token')
+      }
     })
 
     const savedCode  = localStorage.getItem('rp_code')

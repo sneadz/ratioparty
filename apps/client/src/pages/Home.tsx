@@ -10,12 +10,17 @@ export default function Home() {
   const [name, setName] = useState('')
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const { setPlayer, avatarConfig, setAvatarConfig } = useStore()
 
   function handleCreate() {
     const trimmed = name.trim()
     if (!trimmed) { setError('Entre un pseudo.'); return }
+    if (loading) return
     setError('')
+    setLoading(true)
+    localStorage.removeItem('rp_code')
+    localStorage.removeItem('rp_token')
     setPlayer('', trimmed, '')
     socket.emit('create_room', { playerName: trimmed, avatarConfig })
   }
@@ -25,12 +30,16 @@ export default function Home() {
     const trimmedCode = code.trim().toUpperCase()
     if (!trimmedName) { setError('Entre un pseudo.'); return }
     if (trimmedCode.length < 4) { setError('Code invalide.'); return }
+    if (loading) return
     setError('')
+    setLoading(true)
+    localStorage.removeItem('rp_code')
+    localStorage.removeItem('rp_token')
     setPlayer('', trimmedName, '')
     socket.emit('join_room', { code: trimmedCode, playerName: trimmedName, avatarConfig })
   }
 
-  function back() { setMode('idle'); setError(''); setName(''); setCode('') }
+  function back() { setMode('idle'); setError(''); setName(''); setCode(''); setLoading(false) }
 
   return (
     <div style={{
@@ -78,8 +87,8 @@ export default function Home() {
             />
             <AvatarEditor config={avatarConfig} onChange={setAvatarConfig} />
             {error && <p className="error-text">{error}</p>}
-            <button className="btn btn-primary" onClick={handleCreate}>
-              Créer
+            <button className="btn btn-primary" onClick={handleCreate} disabled={loading}>
+              {loading ? 'Création…' : 'Créer'}
             </button>
             <button className="btn btn-ghost" onClick={back}>
               Retour
@@ -111,8 +120,8 @@ export default function Home() {
             />
             <AvatarEditor config={avatarConfig} onChange={setAvatarConfig} />
             {error && <p className="error-text">{error}</p>}
-            <button className="btn btn-primary" onClick={handleJoin}>
-              Rejoindre
+            <button className="btn btn-primary" onClick={handleJoin} disabled={loading}>
+              {loading ? 'Connexion…' : 'Rejoindre'}
             </button>
             <button className="btn btn-ghost" onClick={back}>
               Retour

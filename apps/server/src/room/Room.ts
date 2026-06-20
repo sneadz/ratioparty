@@ -54,7 +54,7 @@ export class Room {
     if (p) p.isConnected = false
   }
 
-  reconnect(reconnectToken: string, newSocketId: string): InternalPlayer | null {
+  reconnect(reconnectToken: string, newSocketId: string): { player: InternalPlayer; oldId: string } | null {
     for (const [oldId, player] of this.players) {
       if (player.reconnectToken !== reconnectToken) continue
       this.players.delete(oldId)
@@ -62,7 +62,7 @@ export class Room {
       player.isConnected = true
       this.players.set(newSocketId, player)
       if (this.hostId === oldId) this.hostId = newSocketId
-      return player
+      return { player, oldId }
     }
     return null
   }
